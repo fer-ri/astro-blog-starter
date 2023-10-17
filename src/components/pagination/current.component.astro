@@ -1,0 +1,18 @@
+---
+import Item from "./item.component.astro";
+
+interface Props {
+  pageNumber: number;
+}
+
+const { pageNumber } = Astro.props;
+---
+
+<Item
+  as="span"
+  class="underline text-zinc-900 dark:text-zinc-100"
+  aria-label=`Current Page, Page ${pageNumber}`
+  aria-current="true"
+>
+  <slot>{pageNumber}</slot>
+</Item>

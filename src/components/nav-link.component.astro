@@ -1,0 +1,39 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = Omit<HTMLAttributes<"a">, "href"> & {
+  href: string;
+};
+
+const { href, ...props } = Astro.props;
+
+const { pathname } = Astro.url;
+
+// const isActive = href === pathname || href === pathname.replace(/\/$/, "");
+
+const isActive = (): boolean => {
+  if (href === pathname || href === pathname.replace(/\/$/, "")) {
+    return true;
+  }
+
+  if (href !== "/" && pathname.startsWith(href)) {
+    return true;
+  }
+
+  return false;
+};
+---
+
+<a
+  href={href}
+  class:list={[
+    "relative underline-offset-8",
+    {
+      underline: isActive(),
+    },
+    { "hover:underline": !isActive() },
+  ]}
+  {...props}
+>
+  <slot />
+</a>

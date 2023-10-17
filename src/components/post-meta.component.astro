@@ -1,0 +1,34 @@
+---
+import { slugify } from "@/utils";
+import FormattedDate from "./formatted-date.component.astro";
+
+interface Props {
+  category?: string;
+  date: Date;
+  minutesRead: string;
+}
+
+const { category, date, minutesRead } = Astro.props;
+
+const dotClassName =
+  "relative before:content-['●'] before:text-[8px] before:absolute before:left-[-10px]";
+---
+
+<div
+  class="flex gap-4 items-center uppercase text-xs font-medium text-gray-500"
+>
+  {
+    category && (
+      <a
+        href={`/category/${slugify(category)}`}
+        class:list={["relative text-purple-600 hover:underline"]}
+      >
+        {category}
+      </a>
+    )
+  }
+
+  <FormattedDate date={date} class:list={[{ [dotClassName]: category }]} />
+
+  <span class:list={[dotClassName]}>~ {minutesRead}</span>
+</div>

@@ -1,0 +1,32 @@
+---
+import MainLayout from "@/layouts/main.layout.astro";
+import type { GetStaticPaths, Page } from "astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import PostSummary from "@/components/post-summary.component.astro";
+import Pagination from "@/components/pagination/pagination.component.astro";
+import { PAGINATION_PAGE_SIZE } from "@/consts";
+
+interface Props {
+  page: Page<CollectionEntry<"blog">>;
+}
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = (await getCollection("blog")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+  return paginate(posts, { pageSize: PAGINATION_PAGE_SIZE });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+<MainLayout title="Blog">
+  <section class="space-y-12">
+    {page.data.map((post) => <PostSummary post={post} />)}
+  </section>
+
+  <section class="mt-16 flex items-center justify-center">
+    {page.lastPage > 1 && <Pagination {...page} />}
+  </section>
+</MainLayout>

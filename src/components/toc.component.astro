@@ -1,0 +1,100 @@
+---
+import type { MarkdownHeading } from "astro";
+
+type NestedMarkdownHeading = MarkdownHeading & {
+  children: MarkdownHeading[];
+};
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+const structuredHeadings = headings
+  .filter(
+    (item) => [2, 3].includes(item.depth) && item.slug !== "footnote-label"
+  )
+  .reduce<NestedMarkdownHeading[]>((acc, item) => {
+    if (item.depth === 2) {
+      // Create a new object with children property and push it to the accumulator
+      acc.push({ ...item, children: [] });
+    } else if (item.depth === 3) {
+      // Push the object to the children property of the last object with depth 2
+      acc[acc.length - 1].children.push(item);
+    }
+    return acc;
+  }, []);
+---
+
+<style>
+  .toc-active-item {
+    @apply underline decoration-2 underline-offset-4;
+  }
+</style>
+
+<script>
+  document.addEventListener(
+    "astro:page-load",
+    () => {
+      const handleScroll = () => {
+        const className = "toc-active-item";
+
+        const sectionHeadings = document.querySelectorAll(
+          "article h2, article h3"
+        );
+
+        const passedHeadings = Array.from(sectionHeadings).filter((el) => {
+          const elBox = el?.getBoundingClientRect();
+
+          return elBox && elBox?.top <= 50;
+        });
+
+        const previouslyActivatedItem = document.querySelector(`.${className}`);
+
+        previouslyActivatedItem?.classList.remove(className);
+
+        if (passedHeadings.length) {
+          const headingId = `#${passedHeadings[passedHeadings.length - 1].id}`;
+
+          const tocItem = document.querySelector(`nav a[href="${headingId}"]`);
+
+          tocItem?.classList.add(className);
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+
+      handleScroll();
+    },
+    { once: true }
+  );
+</script>
+
+<aside class="absolute left-full h-full w-full max-w-[240px] hidden xl:block">
+  <div class="sticky top-8 pl-8">
+    <h4>On this page</h4>
+
+    <nav>
+      <ul class="not-prose list-none space-y-2">
+        {
+          structuredHeadings.map((item) => (
+            <li class="text-base">
+              <a href={`#${item.slug}`}>{item.text}</a>
+
+              {item.children.length > 0 && (
+                <ul class="space-y-2 pl-4 pt-2">
+                  {item.children.map((child) => (
+                    <li class="text-base">
+                      <a href={`#${child.slug}`}>{child.text}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</aside>

@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "./formatted-date.component.astro";
+import Tag from "./tag.component.astro";
+import PostMeta from "./post-meta.component.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+
+const { remarkPluginFrontmatter } = await post.render();
+---
+
+<article class="flex items-start gap-8">
+  <a
+    href={`/blog/${post.slug}/`}
+    title={post.data.title}
+    class="w-24 h-24 shrink-0 rounded-2xl overflow-hidden"
+    transition:name={`hero-${post.slug}`}
+  >
+    <img
+      width={720}
+      height={360}
+      src={post.data.heroImage}
+      alt={post.data.title}
+      loading="lazy"
+      decoding="async"
+      class="aspect-square object-cover object-center block"
+    />
+  </a>
+
+  <div class="flex flex-col gap-4" transition:name={`header-${post.slug}`}>
+    <a href={`/blog/${post.slug}/`} title={post.data.title}>
+      <h2
+        class="font-bold underline text-3xl decoration-1 underline-offset-4 hover:decoration-2"
+      >
+        {post.data.title}
+      </h2>
+    </a>
+
+    <PostMeta
+      category={post.data.category}
+      date={post.data.pubDate}
+      minutesRead={remarkPluginFrontmatter.minutesRead}
+    />
+
+    {post.data.tags && <Tag tags={post.data.tags} />}
+  </div>
+</article>

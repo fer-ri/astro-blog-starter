@@ -1,0 +1,60 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import MainLayout from "@/layouts/main.layout.astro";
+import type { GetStaticPaths, Page } from "astro";
+import { PAGINATION_PAGE_SIZE } from "@/consts";
+import Pagination from "@/components/pagination/pagination.component.astro";
+import PostSummary from "@/components/post-summary.component.astro";
+import { slugify } from "@/utils";
+
+interface Props {
+  page: Page<CollectionEntry<"blog">>;
+  category: string;
+}
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCollection("blog");
+
+  const categories: string[] = [
+    ...new Set(posts.map((post) => post.data.category).filter(Boolean)),
+  ];
+
+  return categories.flatMap((category) => {
+    const slug = slugify(category);
+
+    const filteredPosts = posts.filter(
+      (post) => slugify(post.data.category) === slug
+    );
+
+    return paginate(filteredPosts, {
+      params: { category: slug },
+      props: {
+        category,
+      },
+      pageSize: PAGINATION_PAGE_SIZE,
+    });
+  });
+}) satisfies GetStaticPaths;
+
+const { category: slug } = Astro.params;
+const { page, category } = Astro.props;
+---
+
+<MainLayout title={category}>
+  <section>
+    <header class="text-center">
+      <div>CATEGORIZED</div>
+      <h1 class="font-bold text-3xl md:text-5xl mb-16">
+        {category}
+      </h1>
+    </header>
+  </section>
+
+  <section class="space-y-12">
+    {page.data.map((post) => <PostSummary post={post} />)}
+  </section>
+
+  <section class="mt-16 flex items-center justify-center">
+    {page.lastPage > 1 && <Pagination {...page} />}
+  </section>
+</MainLayout>

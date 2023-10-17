@@ -1,20 +1,92 @@
 ---
-import { type CollectionEntry, getCollection } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+import { type CollectionEntry, getCollection } from "astro:content";
+import MainLayout from "@/layouts/main.layout.astro";
+import FormattedDate from "@/components/formatted-date.component.astro";
+import Toc from "@/components/toc.component.astro";
+import PostSummary from "@/components/post-summary.component.astro";
+import Tag from "@/components/tag.component.astro";
+import PostMeta from "@/components/post-meta.component.astro";
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.slug },
-		props: post,
-	}));
+  const posts = await getCollection("blog");
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
 }
-type Props = CollectionEntry<'blog'>;
+
+type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
-const { Content } = await post.render();
+
+const { Content, remarkPluginFrontmatter, headings } = await post.render();
+
+const { title, pubDate, heroImage, tags } = post.data;
+
+const { slug } = Astro.params;
+
+const randomPosts = (await getCollection("blog"))
+  .filter((item) => item.slug !== post.slug)
+  .slice(0, 3);
 ---
 
-<BlogPost {...post.data}>
-	<Content />
-</BlogPost>
+<MainLayout {...post.data}>
+  <section>
+    <header>
+      <div class="flex flex-col gap-8 md:flex-row">
+        <div
+          transition:name={`hero-${slug}`}
+          class="rounded-2xl overflow-hidden w-48 h-48 shrink-0"
+        >
+          <img
+            src={heroImage}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            class="object-cover object-center aspect-square block"
+          />
+        </div>
+
+        <div class="flex flex-col gap-4" transition:name={`header-${slug}`}>
+          <h1 class="font-bold text-3xl md:text-5xl">
+            {title}
+          </h1>
+
+          <PostMeta
+            category={post.data.category}
+            date={post.data.pubDate}
+            minutesRead={remarkPluginFrontmatter.minutesRead}
+          />
+
+          {tags && <Tag tags={tags} />}
+        </div>
+      </div>
+    </header>
+
+    <hr class="my-8 border-zinc-200 dark:border-zinc-800" />
+
+    <article class="relative prose max-w-none md:prose-xl dark:prose-dark">
+      {headings.length > 0 && <Toc headings={headings} />}
+      <Content />
+    </article>
+  </section>
+
+  {
+    randomPosts.length > 0 && (
+      <>
+        <hr class="my-8 border-zinc-200 dark:border-zinc-800" />
+
+        <section>
+          <h3 class="font-bold text-3xl mb-4">Next</h3>
+
+          <div class="space-y-12">
+            {randomPosts.map((post) => (
+              <PostSummary post={post} />
+            ))}
+          </div>
+        </section>
+      </>
+    )
+  }
+</MainLayout>

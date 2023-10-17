@@ -1,0 +1,22 @@
+---
+import { slugify } from "@/utils";
+
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+---
+
+<div class="flex gap-2 items-center uppercase text-xs font-medium">
+  {
+    tags?.map((item, index) => (
+      <a
+        href={`/tag/${slugify(item)}`}
+        class:list={["relative hover:underline"]}
+      >
+        #{item}
+      </a>
+    ))
+  }
+</div>

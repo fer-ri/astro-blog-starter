@@ -1,0 +1,93 @@
+---
+import type { Page } from "astro";
+import type { CollectionEntry } from "astro:content";
+import Ellipsis from "./ellipsis.component.astro";
+import Current from "./current.component.astro";
+import Link from "./link.component.astro";
+import Prev from "./prev.component.astro";
+import Next from "./next.component.astro";
+
+interface Props extends Omit<Page<CollectionEntry<"blog">>, "data"> {
+  firstUrl?: string;
+}
+
+/**
+ * Get page ranges with ellipsis
+ *
+ * Adapted from https://www.npmjs.com/package/laravel-vue-pagination
+ *
+ * @param total number
+ * @param current number
+ * @param limit number
+ *
+ * @returns (number | string)[]
+ */
+const pageRange = (total = 0, current = 1, limit = 1): (number | string)[] => {
+  const pages: (number | string)[] = [];
+  const range: number[] = [];
+
+  const left: number = current - limit;
+  const right: number = current + limit;
+
+  let key: number;
+
+  for (var i = 1; i <= total; i++) {
+    // Item is first or total
+    if (i === 1 || i === total) {
+      range.push(i);
+    }
+    // Item is within the limit
+    else if (i >= left && i <= right) {
+      range.push(i);
+    }
+  }
+
+  range.forEach(function (i) {
+    if (key) {
+      if (i - key === 2) {
+        pages.push(key + 1);
+      } else if (i - key !== 1) {
+        pages.push("...");
+      }
+    }
+
+    pages.push(i);
+
+    key = i;
+  });
+
+  return pages;
+};
+
+const {
+  lastPage,
+  currentPage,
+  url: { prev, next },
+} = Astro.props;
+
+const pages = pageRange(lastPage, currentPage);
+---
+
+<nav role="navigation" aria-label="Pagination">
+  <ul class="flex list-none font-medium">
+    <Prev url={prev} />
+
+    {
+      pages.map((item) =>
+        typeof item === "number" ? (
+          item === currentPage ? (
+            <Current pageNumber={item} />
+          ) : (
+            <Link pageNumber={item} />
+          )
+        ) : (
+          <Ellipsis />
+        )
+      )
+    }
+
+    <li>
+      <Next url={next} />
+    </li>
+  </ul>
+</nav>

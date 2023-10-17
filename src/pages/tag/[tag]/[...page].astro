@@ -1,0 +1,68 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import MainLayout from "@/layouts/main.layout.astro";
+import type { GetStaticPaths, Page } from "astro";
+import { PAGINATION_PAGE_SIZE } from "@/consts";
+import Pagination from "@/components/pagination/pagination.component.astro";
+import PostSummary from "@/components/post-summary.component.astro";
+import { slugify } from "@/utils";
+
+interface Props {
+  page: Page<CollectionEntry<"blog">>;
+  tag: string;
+}
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCollection("blog");
+
+  const uniqueTags: string[] = [
+    ...new Set(
+      posts
+        .map((post) => post.data.tags || [])
+        .flat()
+        .filter(Boolean)
+    ),
+  ];
+
+  // For every tag, return a paginate() result.
+  // Make sure that you pass `{params: {tag}}` to `paginate()`
+  // so that Astro knows which tag grouping the result is for.
+  return uniqueTags.flatMap((tag) => {
+    const slug = slugify(tag);
+
+    const filteredPosts = posts.filter((post) =>
+      post.data.tags?.map((item) => slugify(item))?.includes(slug)
+    );
+
+    return paginate(filteredPosts, {
+      params: { tag: slug },
+      props: {
+        tag,
+      },
+      pageSize: PAGINATION_PAGE_SIZE,
+    });
+  });
+}) satisfies GetStaticPaths;
+
+const { tag: slug } = Astro.params;
+const { page, tag } = Astro.props;
+---
+
+<MainLayout title={tag}>
+  <section>
+    <header class="text-center">
+      <div>TAGGED</div>
+      <h1 class="font-bold text-3xl md:text-5xl mb-16">
+        {tag}
+      </h1>
+    </header>
+  </section>
+
+  <section class="space-y-12">
+    {page.data.map((post) => <PostSummary post={post} />)}
+  </section>
+
+  <section class="mt-16 flex items-center justify-center">
+    {page.lastPage > 1 && <Pagination {...page} />}
+  </section>
+</MainLayout>

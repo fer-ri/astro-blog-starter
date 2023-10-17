@@ -1,0 +1,21 @@
+---
+import Item from "./item.component.astro";
+interface Props {
+  pageNumber: number;
+}
+
+const { pageNumber } = Astro.props;
+
+const { pathname } = Astro.url;
+
+const basePath = pathname.replace(/\/\d+$/, "").replace(/\/$/, "");
+---
+
+<Item
+  as="a"
+  href={pageNumber === 1 ? basePath : `${basePath}/${pageNumber}`}
+  aria-label={`Goto Page ${pageNumber}`}
+  aria-current="true"
+>
+  <slot>{pageNumber}</slot>
+</Item>
