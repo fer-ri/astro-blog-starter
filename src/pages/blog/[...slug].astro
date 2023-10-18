@@ -1,13 +1,13 @@
 ---
 import { type CollectionEntry, getCollection } from "astro:content";
 import MainLayout from "@/layouts/main.layout.astro";
-import FormattedDate from "@/components/formatted-date.component.astro";
 import Toc from "@/components/toc.component.astro";
 import PostSummary from "@/components/post-summary.component.astro";
 import Tag from "@/components/tag.component.astro";
 import PostMeta from "@/components/post-meta.component.astro";
 import { slugify } from "@/utils";
 import Separator from "@/components/separator.component.astro";
+import { Image } from "astro:assets";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -24,7 +24,7 @@ const post = Astro.props;
 
 const { Content, remarkPluginFrontmatter, headings } = await post.render();
 
-const { title, pubDate, heroImage, tags } = post.data;
+const { title, heroImage, tags } = post.data;
 
 const { slug } = Astro.params;
 
@@ -76,7 +76,8 @@ const randomPosts = (await getCollection("blog"))
 
     <article class="relative prose max-w-none md:prose-xl dark:prose-dark">
       {headings.length > 0 && <Toc headings={headings} />}
-      <Content />
+
+      <Content components={{ Image }} />
     </article>
   </section>
 
