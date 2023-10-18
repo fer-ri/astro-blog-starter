@@ -35,7 +35,7 @@ const randomPosts = (await getCollection("blog"))
 
 <MainLayout {...post.data}>
   <section>
-    <header class="flex flex-col gap-8 md:flex-row md:pb-2">
+    <header class="flex flex-col gap-8 mb-8 md:mb-16 md:flex-row">
       <div
         transition:name={`hero-${slug}`}
         class="rounded-2xl overflow-hidden w-48 h-48 shrink-0 hidden md:block"
@@ -50,20 +50,20 @@ const randomPosts = (await getCollection("blog"))
       </div>
 
       <div class="flex flex-col gap-2" transition:name={`header-${slug}`}>
+        <h1 class="font-bold text-4xl md:text-5xl lg:text-6xl">
+          {title}
+        </h1>
+
         {
           post.data.category && (
             <a
               href={`/category/${slugify(post.data.category)}`}
-              class="text-xs relative text-purple-600 hover:underline"
+              class="text-sm relative text-purple-600 hover:underline"
             >
               {post.data.category}
             </a>
           )
         }
-
-        <h1 class="font-bold text-3xl md:text-5xl">
-          {title}
-        </h1>
 
         <PostMeta
           date={post.data.pubDate}
@@ -73,8 +73,6 @@ const randomPosts = (await getCollection("blog"))
         {tags && <Tag tags={tags} />}
       </div>
     </header>
-
-    <Separator />
 
     <article class="relative prose max-w-none md:prose-xl dark:prose-dark">
       {headings.length > 0 && <Toc headings={headings} />}

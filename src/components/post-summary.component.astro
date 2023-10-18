@@ -36,7 +36,7 @@ const { remarkPluginFrontmatter } = await post.render();
       post.data.category && (
         <a
           href={`/category/${slugify(post.data.category)}`}
-          class="text-xs relative text-purple-600 hover:underline"
+          class="text-sm relative text-purple-600 hover:underline"
         >
           {post.data.category}
         </a>
@@ -45,7 +45,7 @@ const { remarkPluginFrontmatter } = await post.render();
 
     <a href={`/blog/${post.slug}/`} title={post.data.title}>
       <h2
-        class="font-bold underline text-3xl decoration-1 underline-offset-4 hover:decoration-2"
+        class="font-bold underline text-2xl decoration-1 underline-offset-4 hover:decoration-2 lg:text-4xl"
       >
         {post.data.title}
       </h2>
