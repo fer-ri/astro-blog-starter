@@ -1,8 +1,8 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import FormattedDate from "./formatted-date.component.astro";
 import Tag from "./tag.component.astro";
 import PostMeta from "./post-meta.component.astro";
+import { slugify } from "@/utils";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -17,7 +17,7 @@ const { remarkPluginFrontmatter } = await post.render();
   <a
     href={`/blog/${post.slug}/`}
     title={post.data.title}
-    class="w-24 h-24 shrink-0 rounded-2xl overflow-hidden"
+    class="w-24 h-24 shrink-0 rounded-2xl overflow-hidden hidden md:block"
     transition:name={`hero-${post.slug}`}
   >
     <img
@@ -31,7 +31,18 @@ const { remarkPluginFrontmatter } = await post.render();
     />
   </a>
 
-  <div class="flex flex-col gap-4" transition:name={`header-${post.slug}`}>
+  <div class="flex flex-col gap-2" transition:name={`header-${post.slug}`}>
+    {
+      post.data.category && (
+        <a
+          href={`/category/${slugify(post.data.category)}`}
+          class="text-xs relative text-purple-600 hover:underline"
+        >
+          {post.data.category}
+        </a>
+      )
+    }
+
     <a href={`/blog/${post.slug}/`} title={post.data.title}>
       <h2
         class="font-bold underline text-3xl decoration-1 underline-offset-4 hover:decoration-2"
@@ -41,7 +52,6 @@ const { remarkPluginFrontmatter } = await post.render();
     </a>
 
     <PostMeta
-      category={post.data.category}
       date={post.data.pubDate}
       minutesRead={remarkPluginFrontmatter.minutesRead}
     />

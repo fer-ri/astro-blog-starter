@@ -8,7 +8,7 @@ interface Props {
 const { tags } = Astro.props;
 ---
 
-<div class="flex gap-2 items-center uppercase text-xs font-medium">
+<div class="flex flex-wrap gap-2 items-center text-xs font-medium">
   {
     tags?.map((item, index) => (
       <a

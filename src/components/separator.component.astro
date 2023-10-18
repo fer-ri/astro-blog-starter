@@ -1,0 +1,15 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"hr"> {}
+
+const { class: className, ...attrs } = Astro.props;
+---
+
+<hr
+  class:list={[
+    "my-4 border-zinc-200 dark:border-zinc-800 md:my-8",
+    { className },
+  ]}
+  {...attrs}
+/>
