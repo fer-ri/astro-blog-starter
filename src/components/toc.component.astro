@@ -72,11 +72,13 @@ const structuredHeadings = headings
 </script>
 
 <aside class="absolute left-full h-full w-full max-w-[240px] hidden xl:block">
-  <div class="sticky top-8 pl-8">
-    <h4>On this page</h4>
+  <div class="sticky top-8 pl-8 not-prose">
+    <header class="mb-4 font-semibold text-xl text-zinc-900 dark:text-zinc-200">
+      On this page
+    </header>
 
     <nav>
-      <ul class="not-prose list-none space-y-2">
+      <ul class="list-none space-y-2">
         {
           structuredHeadings.map((item) => (
             <li class="text-base">
